@@ -1,9 +1,8 @@
 import subprocess
-import subprocess
 
 device_scan_command = "powershell pnputil /enum-devices /connected  /class \"Ports\"".split()
 dev_scan_proc = subprocess.Popen(device_scan_command, shell=True, stdout=subprocess.PIPE,)
-dev_scan_raw_output = str(dev_scan_proc.stdout.read().decode()).replace("\r\n", "\n")
+dev_scan_raw_output = dev_scan_proc.stdout.read().decode().replace("\r\n", "\n")
 dev_str_l = dev_scan_raw_output.split("\n\n")[1:-1]
 FTDI_count = 0
 

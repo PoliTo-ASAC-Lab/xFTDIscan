@@ -1,5 +1,5 @@
 ## scanusb.py
-Script that uses `powershell pnputil /enum-devices /connected  /class "Ports"` to list the USB-FTDI devices currently attached to the machine (Windows)
+Script that uses `powershell pnputil /enum-devices /connected  /class "Ports"` to list the USB-FTDI devices currently attached to the machine (Windows).
 
 Sample output of `pnputil` command:
 
