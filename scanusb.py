@@ -41,23 +41,25 @@ def win_usbscan():
     print(f"+{'-'*(dev_str_size+1)}{'-'*(port_str_size+2)}+")
 
 def linux_usbscan():
-# Reference: https://gist.github.com/burgeon-env/b7ab4eda18fa97a7e0ebd9633b015267
-# 
-# for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
-#    (
-#        syspath="${sysdevpath%/dev}"
-#        devname="$(udevadm info -q name -p $syspath)"
-#        [[ "$devname" == "bus/"* ]] && exit
-#        eval "$(udevadm info -q property --export -p $syspath)"
-#        [[ -z "$ID_SERIAL" ]] && exit
-#        echo "$ID_SERIAL_SHORT,/dev/$devname,0x$ID_VENDOR_ID,$ID_USB_DRIVER,$ID_SERIAL"
-#    )
-# done
+    device_scan_command = 
+    device_scan_script = ''' 
+    for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+    (
+        syspath="${sysdevpath%/dev}"
+        devname="$(udevadm info -q name -p $syspath)"
+        [[ "$devname" == "bus/"* ]] && exit
+        eval "$(udevadm info -q property --export -p $syspath)"
+        [[ -z "$ID_SERIAL" ]] && exit
+        echo "$ID_SERIAL_SHORT,/dev/$devname,0x$ID_VENDOR_ID,$ID_USB_DRIVER,$ID_SERIAL"
+    )
+    done''' # Reference: https://gist.github.com/burgeon-env/b7ab4eda18fa97a7e0ebd9633b015267
+    dev_scan_proc = subprocess.Popen(device_scan_command, stdout=subprocess.PIPE,)
+    dev_scan_raw_output = dev_scan_proc.stdout.read().decode().replace("\r\n", "\n")
     pass
 
 if __name__ == '__main__':
 	#print(f"System is {platform.system()}")
     if platform.system() == "Windows":
         win_usbscan()
-    elif platform.system() == "Windows":
+    elif platform.system() == "Linux":
         linux_usbscan()
