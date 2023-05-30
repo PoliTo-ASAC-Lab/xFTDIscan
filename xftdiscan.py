@@ -13,7 +13,7 @@ def win_usbscan():
     dev_str_l = dev_scan_raw_output.split("\n\n")[1:-1]
 
     for n,dev_str in enumerate(dev_str_l):
-        if verbose: print("\n"+dev_str+"\n\n"+"-"*60)
+        if verbose: print(dev_str+"\n"+"-"*60)
         field_str_l = dev_str.splitlines()
         for field_str in field_str_l:
             if "Instance ID:" in field_str:
@@ -76,7 +76,7 @@ def print_dev_l(dev_l, dev_str_size=20, port_str_size=6):
     print(bottom_line)
 
 if __name__ == '__main__':
-	#print(f"System is {platform.system()}")
+    if verbose: print(f"System type is {platform.system()}")
     if platform.system() == "Windows":
         dev_list = win_usbscan()
         print_dev_l(dev_list, dev_str_size=20, port_str_size=6)
