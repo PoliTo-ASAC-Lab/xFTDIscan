@@ -1,46 +1,10 @@
-import subprocess, platform, shlex
+import subprocess, platform, shlex, argparse
+
+parser = argparse.ArgumentParser(description="xFTDIscan - Cross Platform FTDI Device Scanner.")
+parser.add_argument('-v','--verbose', action='store_true', help="If present, more info about found devices will be printed.")
+verbose = parser.parse_args().verbose
 
 def win_usbscan():
-    device_scan_command = "powershell pnputil /enum-devices /connected  /class \"Ports\"".split()
-    dev_scan_proc = subprocess.Popen(device_scan_command, shell=True, stdout=subprocess.PIPE,)
-    dev_scan_raw_output = dev_scan_proc.stdout.read().decode().replace("\r\n", "\n")
-    dev_str_l = dev_scan_raw_output.split("\n\n")[1:-1]
-    FTDI_count = 0
-
-    dev_str_size, port_str_size = 20, 6
-    tab_line = f"+{'-'*(dev_str_size+1)}+{'-'*(port_str_size+1)}+"
-
-
-    print(tab_line)
-    print("|"+f"DEVICE".rjust(dev_str_size)+" | "+"PORT".ljust(port_str_size)+"|")
-    print(tab_line)
-
-    for n,dev_str in enumerate(dev_str_l):
-        field_str_l = dev_str.splitlines()
-        for field_str in field_str_l:
-            if "Instance ID:" in field_str:
-                dev_name=field_str.split(":")[-1].split("+")[-1].strip().split("\\0")[0]
-                #print(f"ID --> {dev_name}")
-                continue 
-
-            if "Device Description:" in field_str:
-                com_port=field_str.strip().split(":")[-1].split("(")[-1][:-1] 
-                #print(f"COM --> {com_port}")
-                continue
-
-            if "Manufacturer" in field_str:
-                manufacturer=field_str.strip().split(":")[-1]
-                #print(f"Manufacturer --> {manufacturer}")
-                if "FTDI" not in manufacturer:
-                    break
-                else:
-                    print("|"+dev_name.rjust(dev_str_size)+" | "+com_port.ljust(port_str_size)+"|")
-                    FTDI_count+=1
-    print(tab_line)
-    print(f"| {f'FTDI devices: {FTDI_count}'.rjust(dev_str_size+port_str_size+1)} |")
-    print(f"+{'-'*(dev_str_size+1)}{'-'*(port_str_size+2)}+")
-
-def win_usbscan_():
     dev_l = []
     device_scan_command = "powershell pnputil /enum-devices /connected  /class \"Ports\"".split()
     dev_scan_proc = subprocess.Popen(device_scan_command, shell=True, stdout=subprocess.PIPE,)
@@ -48,6 +12,7 @@ def win_usbscan_():
     dev_str_l = dev_scan_raw_output.split("\n\n")[1:-1]
 
     for n,dev_str in enumerate(dev_str_l):
+        if verbose: print("\n"+dev_str+"\n\n"+"-"*60)
         field_str_l = dev_str.splitlines()
         for field_str in field_str_l:
             if "Instance ID:" in field_str:
@@ -63,25 +28,11 @@ def win_usbscan_():
             if "Manufacturer" in field_str:
                 manufacturer=field_str.strip().split(":")[-1]
                 #print(f"Manufacturer --> {manufacturer}")
-                if "FTDI" not in manufacturer and "ftdi" not in manufacturer:
+                if "FTDI" not in manufacturer and "ftdi" not in manufacturer and '0403' not in dev_str:
                     break
                 else:
                     dev_l.append((dev_name,com_port))
-                    print("|"+dev_name.rjust(dev_str_size)+" | "+com_port.ljust(port_str_size)+"|")
     return dev_l
-
-def print_dev_l(dev_l, dev_str_size=20, port_str_size=6):
-    tab_line = f"+{'-'*(dev_str_size+1)}+{'-'*(port_str_size+1)}+"
-    bottom_line = f"+{'-'*(dev_str_size+1)}{'-'*(port_str_size+2)}+"
-
-    print(tab_line)
-    print("|"+f"DEVICE ({len(dev_l)}) ".rjust(dev_str_size)+" | "+"PORT".ljust(port_str_size)+"|")
-    print(tab_line)
-
-    for (dev,port) in dev_l:
-        print("|"+dev.rjust(dev_str_size)+" | "+port.ljust(port_str_size)+"|")
-    print(bottom_line)
-
 
 def linux_usbscan():
     dev_l = []
@@ -102,12 +53,25 @@ def linux_usbscan():
     dev_scan_proc = subprocess.Popen(device_scan_command, stdout=subprocess.PIPE)
     for line in dev_scan_proc.stdout.read().decode().splitlines():
         if any(x in line for x in ["ftdi", "FTDI", '0x0403']):
-            #print(line)
+            if verbose: print(line+"\n\n"+"-"*60)
             dev_specs = line.split(',')
             dev_name = f"{dev_specs[4]} ({dev_specs[0]})"
             com_port = dev_specs[1]
             dev_l.append((dev_name,com_port))
     return dev_l
+
+def print_dev_l(dev_l, dev_str_size=20, port_str_size=6):
+    tab_line = f"+{'-'*(dev_str_size+1)}+{'-'*(port_str_size+1)}+"
+    bottom_line = f"+{'-'*(dev_str_size+1)}{'-'*(port_str_size+2)}+\n"
+
+    if verbose: print("")
+    print(tab_line)
+    print("|"+f"DEVICE ({len(dev_l)}) ".rjust(dev_str_size)+" | "+"PORT".ljust(port_str_size)+"|")
+    print(tab_line)
+
+    for (dev,port) in dev_l:
+        print("|"+dev.rjust(dev_str_size)+" | "+port.ljust(port_str_size)+"|")
+    print(bottom_line)
 
 if __name__ == '__main__':
 	#print(f"System is {platform.system()}")
