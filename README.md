@@ -1,6 +1,6 @@
 ### xftdiscan.py
 Cross-platform script listing all the USB-FTDI devices currently attached to the machine.
-_It's not much, but it's honest work._
+<br>_It's not much, but it's honest work._
 
 **Getting Started**:
 ```
