@@ -5,6 +5,7 @@ parser.add_argument('-v','--verbose', action='store_true', help="If present, mor
 verbose = parser.parse_args().verbose
 
 def win_usbscan():
+    if verbose: print("-"*60)
     dev_l = []
     device_scan_command = "powershell pnputil /enum-devices /connected  /class \"Ports\"".split()
     dev_scan_proc = subprocess.Popen(device_scan_command, shell=True, stdout=subprocess.PIPE,)
@@ -35,6 +36,7 @@ def win_usbscan():
     return dev_l
 
 def linux_usbscan():
+    if verbose: print("-"*60)
     dev_l = []
     # Reference: https://gist.github.com/burgeon-env/b7ab4eda18fa97a7e0ebd9633b015267
     device_scan_script = """/bin/bash -c 
@@ -53,7 +55,7 @@ def linux_usbscan():
     dev_scan_proc = subprocess.Popen(device_scan_command, stdout=subprocess.PIPE)
     for line in dev_scan_proc.stdout.read().decode().splitlines():
         if any(x in line for x in ["ftdi", "FTDI", '0x0403']):
-            if verbose: print(line+"\n\n"+"-"*60)
+            if verbose: print(line+"\n"+"-"*60)
             dev_specs = line.split(',')
             dev_name = f"{dev_specs[4]} ({dev_specs[0]})"
             com_port = dev_specs[1]
