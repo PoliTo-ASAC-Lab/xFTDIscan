@@ -9,7 +9,7 @@ def win_usbscan():
     dev_l = []
     device_scan_command = "powershell pnputil /enum-devices /connected  /class \"Ports\"".split()
     dev_scan_proc = subprocess.Popen(device_scan_command, shell=True, stdout=subprocess.PIPE,)
-    dev_scan_raw_output = dev_scan_proc.stdout.read().decode().replace("\r\n", "\n")
+    dev_scan_raw_output = dev_scan_proc.stdout.read().decode(errors='backslashreplace').replace("\r\n", "\n")
     dev_str_l = dev_scan_raw_output.split("\n\n")[1:-1]
 
     for n,dev_str in enumerate(dev_str_l):
@@ -53,7 +53,7 @@ def linux_usbscan():
     """
     device_scan_command = shlex.split(" ".join(" ".join(device_scan_script.splitlines()).split()))
     dev_scan_proc = subprocess.Popen(device_scan_command, stdout=subprocess.PIPE)
-    for line in dev_scan_proc.stdout.read().decode().splitlines():
+    for line in dev_scan_proc.stdout.read().decode(errors='backslashreplace').splitlines():
         if any(x in line for x in ["ftdi", "FTDI", '0x0403']):
             if verbose: print(line+"\n"+"-"*60)
             dev_specs = line.split(',')
