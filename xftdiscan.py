@@ -92,8 +92,9 @@ def linux_usbscan():
 
 
 def print_dev_l(dev_l, dev_str_size=20, port_str_size=6):
-    dev_str_size = max(len(x[0]) for x in dev_l) + 1
-    port_str_size = max(len(x[1]) for x in dev_l) + 1
+    if len(dev_l) > 0:
+        dev_str_size = max(len(x[0]) for x in dev_l) + 1
+        port_str_size = max(len(x[1]) for x in dev_l) + 1
 
     tab_line = f"+{'-'*(dev_str_size+1)}+{'-'*(port_str_size+1)}+"
     bottom_line = f"+{'-'*(dev_str_size+1)}{'-'*(port_str_size+2)}+\n"
@@ -101,13 +102,7 @@ def print_dev_l(dev_l, dev_str_size=20, port_str_size=6):
     if verbose:
         print("")
     print(tab_line)
-    print(
-        "|"
-        + f"DEVICE ({len(dev_l)}) ".rjust(dev_str_size)
-        + " | "
-        + "PORT".ljust(port_str_size)
-        + "|"
-    )
+    print(f"| {f'DEVICE ({len(dev_l)}) '.rjust(dev_str_size)}| {'PORT'.ljust(port_str_size)}|")
     print(tab_line)
 
     for dev, port in dev_l:
