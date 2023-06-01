@@ -1,20 +1,25 @@
 ### xftdiscan.py
+
 Cross-platform script listing all the USB-FTDI devices currently attached to the machine.
 <br>_It's not much, but it's honest work._
 
 **Getting Started**:
+
 ```
-usage: xftdiscan.py [-h] [-v]
+usage: xftdiscan.py [-h] [-v] [-l]
 
 xFTDIscan - Cross Platform FTDI Device Scanner.
 
 optional arguments:
--h, --help     show this help message and exit
--v, --verbose  If present, more info about found devices will be printed.
+  -h, --help     show this help message and exit
+  -v, --verbose  If present, more info about found devices will be printed.
+  -l, --list     If present, prints device list also as simple CSV list.
 ```
 
 **Usage example on Windows (normal & verbose)**:
+
 ```
+
 > python .\xftdiscan.py   
 +---------------------+-------+
 |         DEVICE (2)  | PORT  |
@@ -57,7 +62,9 @@ Driver Name:                oem84.inf
 |           6666-tulB | COM11 |
 +-----------------------------+
 ```
+
 **Usage example on Linux (normal & verbose)**:
+
 ```
 > python ./xftdiscan.py 
 +--------------------------------+---------------+
