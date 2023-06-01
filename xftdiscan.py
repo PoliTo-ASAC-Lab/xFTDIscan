@@ -16,7 +16,8 @@ def win_usbscan():
         if verbose: print(dev_str+"\n"+"-"*60)
         if any(x in dev_str for x in ["ftdi", "FTDI", '0403']):
             field_str_l = dev_str.splitlines()
-            dev_name=field_str_l[0].split(":")[-1].split("+")[-1].strip().split("\\0")[0] if "ID" in field_str_l[0] else "???" # Instance ID            
+            #dev_name=field_str_l[0].split(":")[-1].split("+")[-1].strip().split("\\0")[0] if "ID" in field_str_l[0] else "???" # Instance ID            
+            dev_name=field_str_l[0].split(":")[-1].strip() if "ID" in field_str_l[0] else "???" # Instance ID            
             com_port=field_str_l[1].strip().split(":")[-1].split("(")[-1][:-1] if "Des" in field_str_l[1] else "???" #Device Description
             dev_l.append((dev_name,com_port))
     return dev_l
@@ -49,6 +50,11 @@ def linux_usbscan():
     return dev_l
 
 def print_dev_l(dev_l, dev_str_size=20, port_str_size=6):
+
+    dev_str_size = max(len(x[0]) for x in dev_l)+1
+    port_str_size = max(len(x[1]) for x in dev_l)+1
+    
+
     tab_line = f"+{'-'*(dev_str_size+1)}+{'-'*(port_str_size+1)}+"
     bottom_line = f"+{'-'*(dev_str_size+1)}{'-'*(port_str_size+2)}+\n"
 
