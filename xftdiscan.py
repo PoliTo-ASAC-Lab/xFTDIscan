@@ -14,25 +14,11 @@ def win_usbscan():
 
     for n,dev_str in enumerate(dev_str_l):
         if verbose: print(dev_str+"\n"+"-"*60)
-        field_str_l = dev_str.splitlines()
-        for field_str in field_str_l:
-            if "Instance ID:" in field_str:
-                dev_name=field_str.split(":")[-1].split("+")[-1].strip().split("\\0")[0]
-                #print(f"ID --> {dev_name}")
-                continue 
-
-            if "Device Description:" in field_str:
-                com_port=field_str.strip().split(":")[-1].split("(")[-1][:-1] 
-                #print(f"COM --> {com_port}")
-                continue
-
-            if "Manufacturer" in field_str:
-                manufacturer=field_str.strip().split(":")[-1]
-                #print(f"Manufacturer --> {manufacturer}")
-                if "FTDI" not in manufacturer and "ftdi" not in manufacturer and '0403' not in dev_str:
-                    break
-                else:
-                    dev_l.append((dev_name,com_port))
+        if any(x in dev_str for x in ["ftdi", "FTDI", '0403']):
+            field_str_l = dev_str.splitlines()
+            dev_name=field_str_l[0].split(":")[-1].split("+")[-1].strip().split("\\0")[0] if "ID" in field_str_l[0] else "???" # Instance ID            
+            com_port=field_str_l[1].strip().split(":")[-1].split("(")[-1][:-1] if "Des" in field_str_l[1] else "???" #Device Description
+            dev_l.append((dev_name,com_port))
     return dev_l
 
 def linux_usbscan():
@@ -54,7 +40,7 @@ def linux_usbscan():
     device_scan_command = shlex.split(" ".join(" ".join(device_scan_script.splitlines()).split()))
     dev_scan_proc = subprocess.Popen(device_scan_command, stdout=subprocess.PIPE)
     for line in dev_scan_proc.stdout.read().decode(errors='backslashreplace').splitlines():
-        if any(x in line for x in ["ftdi", "FTDI", '0x0403']):
+        if any(x in line for x in ["ftdi", "FTDI", '0403']):
             if verbose: print(line+"\n"+"-"*60)
             dev_specs = line.split(',')
             dev_name = f"{dev_specs[4]} ({dev_specs[0]})"
@@ -74,6 +60,9 @@ def print_dev_l(dev_l, dev_str_size=20, port_str_size=6):
     for (dev,port) in dev_l:
         print("|"+dev.rjust(dev_str_size)+" | "+port.ljust(port_str_size)+"|")
     print(bottom_line)
+
+    if len(dev_l) == 0:
+        print(f"\tGet more info with \"python xfdtiscan.py --verbose\"\n")
 
 if __name__ == '__main__':
     if verbose: print(f"System type is {platform.system()}")
